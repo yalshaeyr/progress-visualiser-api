@@ -12,8 +12,8 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'func-pv-test'
-  API_PROJECT: 'ProgressVisualizer.Api'
-  API_TEST_PROJECT: 'ProgressVisualizer.Api.Tests'
+  API_PROJECT: 'ProgressVisualiserApi'
+  API_TEST_PROJECT: 'ProgressVisualiserApi.Tests'
   DOTNET_VERSION: '8.0.x'          
 
 jobs:
