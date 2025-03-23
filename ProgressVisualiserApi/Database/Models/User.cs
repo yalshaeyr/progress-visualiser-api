@@ -13,6 +13,6 @@ namespace ProgressVisualiserApi.Database.Models
         [StringLength(255)]
         public required string Username { get; set; }
         
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }

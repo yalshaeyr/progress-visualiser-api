@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using ProgressVisualiserApi.Database.Contexts;
+using ProgressVisualiserApi.Database;
 using ProgressVisualiserApi.Database.Models;
 
-namespace ProgressVisualiserApi.Endpoints
+namespace ProgressVisualiserApi.Controllers
 {
-    public static class MetricDataEndpoints
+    public static class MetricDataController
     {
-        public static void RegisterMetricDataEndpoints(this WebApplication app)
+        public static void RegisterMetricDataController(this WebApplication app)
         {
             var metricData = app.MapGroup("/metricdata");
             MapMetricDataGroup(metricData);
@@ -21,12 +21,12 @@ namespace ProgressVisualiserApi.Endpoints
             metricData.MapDelete("/{id}", DeleteMetricData);
         }
 
-        static async Task<IResult> GetAllMetricData(MetricDataContext db)
+        static async Task<IResult> GetAllMetricData(ProgressVisualiserApiContext db)
         {
             return TypedResults.Ok(await db.MetricData.ToArrayAsync());
         }
 
-        static async Task<IResult> GetMetricData(int id, MetricDataContext db)
+        static async Task<IResult> GetMetricData(int id, ProgressVisualiserApiContext db)
         {
             return await db.MetricData.FindAsync(id)
                 is MetricData metricData
@@ -34,7 +34,7 @@ namespace ProgressVisualiserApi.Endpoints
                     : TypedResults.NotFound();
         }
 
-        static async Task<IResult> CreateMetricData(MetricData metricData, MetricDataContext db)
+        static async Task<IResult> CreateMetricData(MetricData metricData, ProgressVisualiserApiContext db)
         {
             db.MetricData.Add(metricData);
             await db.SaveChangesAsync();
@@ -42,7 +42,7 @@ namespace ProgressVisualiserApi.Endpoints
             return TypedResults.Created($"/metricdata/{metricData.Id}", metricData);
         }
 
-        static async Task<IResult> UpdateMetricData(int id, MetricData inputMetricData, MetricDataContext db)
+        static async Task<IResult> UpdateMetricData(int id, MetricData inputMetricData, ProgressVisualiserApiContext db)
         {
             var metricData = await db.MetricData.FindAsync(id);
 
@@ -55,7 +55,7 @@ namespace ProgressVisualiserApi.Endpoints
             return TypedResults.NoContent();
         }
 
-        static async Task<IResult> DeleteMetricData(int id, MetricDataContext db)
+        static async Task<IResult> DeleteMetricData(int id, ProgressVisualiserApiContext db)
         {
             if (await db.MetricData.FindAsync(id) is MetricData metricData)
             {

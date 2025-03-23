@@ -19,12 +19,10 @@ namespace ProgressVisualiserApi.Database.Models
         [StringLength(255)]
         public string? Unit { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
 
         [Required]
-        public int UserId { get; set; }
-
         [ForeignKey("UserId")]
-        public required User User { get; set; }
+        public int UserId { get; set; }
     }
 }

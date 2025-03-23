@@ -9,14 +9,12 @@ namespace ProgressVisualiserApi.Database.Models
         [Key]
         public int Id { get; set; }
 
-        public float Value { get; set; }
+        public double Value { get; set; }
 
         [Required]
+        [ForeignKey("MetricId")]
         public int MetricId { get; set; }
 
-        public DateTime RecordedAt { get; set; }
-
-        [ForeignKey("MetricId")]
-        public required Metric Metric { get; set; }
+        public DateTimeOffset RecordedAt { get; set; }
     }
 }
