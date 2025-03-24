@@ -17,3 +17,8 @@ GRANT SELECT, DELETE, INSERT, ALTER, UPDATE ON [PV].[Metrics] TO [app-pvapi-test
 GRANT SELECT, DELETE, INSERT, ALTER, UPDATE ON [PV].[MetricData] TO [app-pvapi-test]
 GRANT SELECT, DELETE, INSERT, ALTER, UPDATE ON [PV].[Users] TO [app-pvapi-test]
 ```
+
+### App Service Environmental Variables
+Configure the following connection strings:
+- `AZURE_SQL_CONNECTIONSTRING`: The connection string for the target Azure SQL database, using Azure Default Credential.
+- `AZURE_APPLICATIONINSIGHTS_CONNECTIONSTRING`: The connection string for the target Azure Monitor service for logging.
