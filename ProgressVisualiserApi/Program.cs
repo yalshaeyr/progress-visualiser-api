@@ -1,22 +1,30 @@
 using Microsoft.EntityFrameworkCore;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using ProgressVisualiserApi.Database;
 using ProgressVisualiserApi.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connection = string.Empty;
+var sqlConnectionString = string.Empty;
+var appInsightsConnectionString = string.Empty;
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
-    connection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+    sqlConnectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+    appInsightsConnectionString = builder.Configuration.GetConnectionString("AZURE_APPLICATIONINSIGHTS_CONNECTIONSTRING");
 }
 else
 {
-    connection = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+    sqlConnectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+    appInsightsConnectionString = Environment.GetEnvironmentVariable("AZURE_APPLICATIONINSIGHTS_CONNECTIONSTRING");
 }
 
+builder.Services.AddOpenTelemetry().UseAzureMonitor(options => {
+    options.ConnectionString = appInsightsConnectionString;
+});
+
 builder.Services.AddDbContext<ProgressVisualiserApiContext>(options =>
-    options.UseSqlServer(connection));
+    options.UseSqlServer(sqlConnectionString));
 
 var app = builder.Build();
 
