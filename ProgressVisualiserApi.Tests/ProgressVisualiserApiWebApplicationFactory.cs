@@ -22,6 +22,19 @@ public class ProgressVisualiserApiWebApplicationFactory : WebApplicationFactory<
             // however, .NET 9 requires this type. See GitHub issue https://github.com/dotnet/efcore/issues/35126
             // Also, see resolution https://jackyasgar.net/solved-ef-8-to-9-migration-database-provider-exception/
             services.RemoveAll(typeof(IDbContextOptionsConfiguration<ProgressVisualiserApiContext>));
+            
+            // Remove ALL OpenTelemetry related services before testing
+            var descriptors = services.Where(d => 
+                d.ImplementationType?.Namespace?.Contains("OpenTelemetry") == true ||
+                d.ServiceType.FullName?.Contains("OpenTelemetry") == true
+            ).ToList();
+
+            foreach (var descriptor in descriptors)
+            {
+                services.Remove(descriptor);
+            }
+
+            services.RemoveAll<ILoggerProvider>();
 
             // Add DbContext using an in-memory database for testing
             services.AddDbContext<ProgressVisualiserApiContext>((container, options) =>
