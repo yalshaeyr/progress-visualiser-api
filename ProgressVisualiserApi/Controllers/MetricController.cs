@@ -36,6 +36,13 @@ namespace ProgressVisualiserApi.Controllers
 
         static async Task<IResult> CreateMetric(Metric metric, ProgressVisualiserApiContext db)
         {
+            // Ensure the ID is not set by the client, as the database will handle it
+            metric.Id = 0;
+
+            // TODO: Remove - Once Users are implemented, the client should specify the user.
+            // Using this for now as there is only one user which the client cannot yet specify.
+            metric.UserId = 1;
+
             db.Metrics.Add(metric);
             await db.SaveChangesAsync();
 
@@ -51,7 +58,6 @@ namespace ProgressVisualiserApi.Controllers
             metric.Name = inputMetric.Name;
             metric.Description = inputMetric.Description;
             metric.Unit = inputMetric.Unit;
-
 
             await db.SaveChangesAsync();
 
