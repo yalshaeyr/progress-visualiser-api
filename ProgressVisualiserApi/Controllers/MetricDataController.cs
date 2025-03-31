@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using ProgressVisualiserApi.Database;
 using ProgressVisualiserApi.Database.Models;
@@ -16,9 +17,11 @@ namespace ProgressVisualiserApi.Controllers
         {
             metricData.MapGet("/", GetAllMetricData);
             metricData.MapGet("/{id}", GetMetricData);
+            metricData.MapGet("/metric/{metricId}", GetMetricDataByMetricId);
             metricData.MapPost("/", CreateMetricData);
             metricData.MapPut("/{id}", UpdateMetricData);
             metricData.MapDelete("/{id}", DeleteMetricData);
+            metricData.MapDelete("/metric/{metricId}", DeleteMetricDataByMetricId);
         }
 
         static async Task<IResult> GetAllMetricData(ProgressVisualiserApiContext db)
@@ -33,6 +36,19 @@ namespace ProgressVisualiserApi.Controllers
                     ? TypedResults.Ok(metricData)
                     : TypedResults.NotFound();
         }
+
+        static async Task<IResult> GetMetricDataByMetricId(int metricId, ProgressVisualiserApiContext db)
+        {
+            var metric = await db.Metrics.FindAsync(metricId);
+            var metricData = await db.MetricData.Where(md => md.MetricId == metricId).ToListAsync();
+            
+            if (metric == null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            return metricData.Count != 0 ? TypedResults.Ok(metricData) : TypedResults.Ok(new List<MetricData>());
+        }        
 
         static async Task<IResult> CreateMetricData(MetricData metricData, ProgressVisualiserApiContext db)
         {
@@ -65,6 +81,21 @@ namespace ProgressVisualiserApi.Controllers
             }
 
             return TypedResults.NotFound();
+        }
+
+        static async Task<IResult> DeleteMetricDataByMetricId(int metricId, ProgressVisualiserApiContext db)
+        {
+            var metricDataList = await db.MetricData.Where(md => md.MetricId == metricId).ToListAsync();
+
+            if (metricDataList.Count == 0)
+            {
+                return TypedResults.NoContent();
+            }
+
+            db.MetricData.RemoveRange(metricDataList);
+            await db.SaveChangesAsync();
+
+            return TypedResults.NoContent();
         }
     }
 }
