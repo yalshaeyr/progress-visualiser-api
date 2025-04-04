@@ -44,7 +44,19 @@ builder.Services.AddOpenTelemetry().UseAzureMonitor(options => {
 });
 
 builder.Services.AddDbContext<ProgressVisualiserApiContext>(options =>
-    options.UseSqlServer(sqlConnectionString));
+    options.UseSqlServer(
+        sqlConnectionString,
+        // specifically tailored for SQL Server, including Azure SQL
+        // see https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
+        // since we plan to use a free Azure SQL database deployment,
+        // which requires warmup, this will address transient failures during this period
+        options => options.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorNumbersToAdd: null
+        )
+    )
+);
 
 var app = builder.Build();
 
