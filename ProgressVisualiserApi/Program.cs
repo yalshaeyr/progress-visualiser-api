@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using ProgressVisualiserApi.Database;
 using ProgressVisualiserApi.Controllers;
+using ProgressVisualiserApi.Services;
 
 var AllowSpecificOrigins = "_allowSpecificOrigins";
 
@@ -57,6 +58,9 @@ builder.Services.AddDbContext<ProgressVisualiserApiContext>(options =>
         )
     )
 );
+
+// We don't need more than one instance of this service in the application lifetime
+builder.Services.AddSingleton<IContentSafetyService, ContentSafetyService>();
 
 var app = builder.Build();
 
