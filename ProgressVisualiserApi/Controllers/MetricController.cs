@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProgressVisualiserApi.Database;
 using ProgressVisualiserApi.Database.Models;
+using ProgressVisualiserApi.Services;
 
 namespace ProgressVisualiserApi.Controllers 
 {
@@ -34,8 +35,14 @@ namespace ProgressVisualiserApi.Controllers
                     : TypedResults.NotFound();
         }
 
-        static async Task<IResult> CreateMetric(Metric metric, ProgressVisualiserApiContext db)
+        static async Task<IResult> CreateMetric(Metric metric, ProgressVisualiserApiContext db, IContentSafetyService contentSafetyService)
         {
+            // Analyse metric name and description - one string to avoid multiple calls to the service
+            if (!await contentSafetyService.IsContentSafeAsync(metric.Name + " " + metric.Description + " " + metric.Unit))
+            {
+                return TypedResults.BadRequest("Metric name or description contains unsafe content.");
+            }
+
             // Ensure the ID is not set by the client, as the database will handle it
             metric.Id = 0;
 
@@ -49,11 +56,16 @@ namespace ProgressVisualiserApi.Controllers
             return TypedResults.Created($"/metrics/{metric.Id}", metric);
         }
 
-        static async Task<IResult> UpdateMetric(int id, Metric inputMetric, ProgressVisualiserApiContext db)
+        static async Task<IResult> UpdateMetric(int id, Metric inputMetric, ProgressVisualiserApiContext db, IContentSafetyService contentSafetyService)
         {
             var metric = await db.Metrics.FindAsync(id);
 
             if (metric is null) return TypedResults.NotFound();
+
+            if (!await contentSafetyService.IsContentSafeAsync(inputMetric.Name + " " + inputMetric.Description + " " + inputMetric.Unit))
+            {
+                return TypedResults.BadRequest("Metric name or description contains unsafe content.");
+            }
 
             metric.Name = inputMetric.Name;
             metric.Description = inputMetric.Description;
